@@ -22,18 +22,18 @@ YELLOW = (255, 255, 0)
 
 # Load and scale piece images
 PIECES = {
-    "P": pygame.image.load("images/w_chess_piyade.png"),
-    "N": pygame.image.load("images/w_asb.png"),
-    "B": pygame.image.load("images/w_fil.png"),
-    "R": pygame.image.load("images/w_gale.png"),
-    "Q": pygame.image.load("images/w_vazir.png"),
-    "K": pygame.image.load("images/w_shah.png"),
-    "p": pygame.image.load("images/b_piyade.png"),
-    "n": pygame.image.load("images/b_asb.png"),
-    "b": pygame.image.load("images/b_fil.png"),
-    "r": pygame.image.load("images/b_gale.png"),
-    "q": pygame.image.load("images/b_vazir.png"),
-    "k": pygame.image.load("images/b_shah.png"),
+    "P": pygame.image.load("../images/w_chess_piyade.png"),
+    "N": pygame.image.load("../images/w_asb.png"),
+    "B": pygame.image.load("../images/w_fil.png"),
+    "R": pygame.image.load("../images/w_gale.png"),
+    "Q": pygame.image.load("../images/w_vazir.png"),
+    "K": pygame.image.load("../images/w_shah.png"),
+    "p": pygame.image.load("../images/b_piyade.png"),
+    "n": pygame.image.load("../images/b_asb.png"),
+    "b": pygame.image.load("../images/b_fil.png"),
+    "r": pygame.image.load("../images/b_gale.png"),
+    "q": pygame.image.load("../images/b_vazir.png"),
+    "k": pygame.image.load("../images/b_shah.png"),
 }
 
 for piece in PIECES:
