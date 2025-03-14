@@ -12,8 +12,10 @@ SQUARE_SIZE = WIDTH // 8
 # رنگ‌ها
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
-LIGHT_BROWN = (220, 139, 71)
-DARK_BROWN = (101, 67, 33)
+# LIGHT_BROWN = (240, 217, 181)
+LIGHT_BROWN = (238, 238, 210)
+DARK_BROWN = (0, 51, 0)
+# DARK_BROWN = (118, 150, 86)
 HIGHLIGHT_COLOR = (0, 255, 0, 100)  # رنگ برای نمایش حرکات مجاز
 
 # مهره‌ها
@@ -36,7 +38,6 @@ PIECES = {
 for piece in PIECES:
     PIECES[piece] = pygame.transform.scale(PIECES[piece], (SQUARE_SIZE, SQUARE_SIZE))
 
-# ایجاد صفحه شطرنج با python-chess
 board = chess.Board()
 
 # تابع برای رسم صفحه شطرنج
