@@ -1,7 +1,8 @@
-import pygame
 import sys
-import chess
 import time
+
+import chess
+import pygame
 
 # Initialize Pygame
 pygame.init()
@@ -53,14 +54,16 @@ class Board:
         for row in range(8):
             for col in range(8):
                 color = LIGHT_BROWN if (row + col) % 2 == 0 else DARK_BROWN
-                pygame.draw.rect(screen, color, (col * SQUARE_SIZE, INFO_HEIGHT + row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+                pygame.draw.rect(screen, color,
+                                 (col * SQUARE_SIZE, INFO_HEIGHT + row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
         # Draw pieces
         for square in chess.SQUARES:
             piece = self.board.piece_at(square)
             if piece:
                 piece_image = PIECES[piece.symbol()]
-                screen.blit(piece_image, (chess.square_file(square) * SQUARE_SIZE, INFO_HEIGHT + (7 - chess.square_rank(square)) * SQUARE_SIZE))
+                screen.blit(piece_image, (
+                chess.square_file(square) * SQUARE_SIZE, INFO_HEIGHT + (7 - chess.square_rank(square)) * SQUARE_SIZE))
 
     def highlight_legal_moves(self, screen, selected_square):
         """Highlight legal moves for the selected piece."""
@@ -73,7 +76,8 @@ class Board:
                     pygame.draw.circle(
                         screen,
                         HIGHLIGHT_COLOR,
-                        (target_col * SQUARE_SIZE + SQUARE_SIZE // 2, INFO_HEIGHT + target_row * SQUARE_SIZE + SQUARE_SIZE // 2),
+                        (target_col * SQUARE_SIZE + SQUARE_SIZE // 2,
+                         INFO_HEIGHT + target_row * SQUARE_SIZE + SQUARE_SIZE // 2),
                         SQUARE_SIZE // 4
                     )
 
