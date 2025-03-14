@@ -2,109 +2,121 @@ import pygame
 import sys
 import chess
 
-# تنظیمات اولیه
+# Initialize Pygame
 pygame.init()
 
-# ابعاد صفحه
+# Constants
 WIDTH, HEIGHT = 400, 400
 SQUARE_SIZE = WIDTH // 8
-
-# رنگ‌ها
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-# LIGHT_BROWN = (240, 217, 181)
 LIGHT_BROWN = (238, 238, 210)
 DARK_BROWN = (0, 51, 0)
-# DARK_BROWN = (118, 150, 86)
-HIGHLIGHT_COLOR = (0, 255, 0, 100)  # رنگ برای نمایش حرکات مجاز
+HIGHLIGHT_COLOR = (0, 255, 0, 100)
 
-# مهره‌ها
+# Load and scale piece images
 PIECES = {
-    "P": pygame.image.load("images/w_chess_piyade.png"),  # پیاده سفید
-    "N": pygame.image.load("images/w_asb.png"),  # اسب سفید
-    "B": pygame.image.load("images/w_fil.png"),  # فیل سفید
-    "R": pygame.image.load("images/w_gale.png"),  # رخ سفید
-    "Q": pygame.image.load("images/w_vazir.png"),  # وزیر سفید
-    "K": pygame.image.load("images/w_shah.png"),  # شاه سفید
-    "p": pygame.image.load("images/b_piyade.png"),  # پیاده سیاه
-    "n": pygame.image.load("images/b_asb.png"),  # اسب سیاه
-    "b": pygame.image.load("images/b_fil.png"),  # فیل سیاه
-    "r": pygame.image.load("images/b_gale.png"),  # رخ سیاه
-    "q": pygame.image.load("images/b_vazir.png"),  # وزیر سیاه
-    "k": pygame.image.load("images/b_shah.png"),  # شاه سیاه
+    "P": pygame.image.load("images/w_chess_piyade.png"),
+    "N": pygame.image.load("images/w_asb.png"),
+    "B": pygame.image.load("images/w_fil.png"),
+    "R": pygame.image.load("images/w_gale.png"),
+    "Q": pygame.image.load("images/w_vazir.png"),
+    "K": pygame.image.load("images/w_shah.png"),
+    "p": pygame.image.load("images/b_piyade.png"),
+    "n": pygame.image.load("images/b_asb.png"),
+    "b": pygame.image.load("images/b_fil.png"),
+    "r": pygame.image.load("images/b_gale.png"),
+    "q": pygame.image.load("images/b_vazir.png"),
+    "k": pygame.image.load("images/b_shah.png"),
 }
 
-# تبدیل تصاویر به اندازه خانه‌ها
 for piece in PIECES:
     PIECES[piece] = pygame.transform.scale(PIECES[piece], (SQUARE_SIZE, SQUARE_SIZE))
 
-board = chess.Board()
 
-# تابع برای رسم صفحه شطرنج
-def draw_board(screen):
-    for row in range(8):
-        for col in range(8):
-            color = LIGHT_BROWN if (row + col) % 2 == 0 else DARK_BROWN
-            pygame.draw.rect(screen, color, (col * SQUARE_SIZE, row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+class Board:
+    def __init__(self):
+        self.board = chess.Board()
 
-    # نمایش مهره‌ها
-    for square in chess.SQUARES:
-        piece = board.piece_at(square)
-        if piece:
-            piece_image = PIECES[piece.symbol()]
-            screen.blit(piece_image, (chess.square_file(square) * SQUARE_SIZE, (7 - chess.square_rank(square)) * SQUARE_SIZE))
+    def draw(self, screen):
+        """Draw the chessboard and pieces."""
+        for row in range(8):
+            for col in range(8):
+                color = LIGHT_BROWN if (row + col) % 2 == 0 else DARK_BROWN
+                pygame.draw.rect(screen, color, (col * SQUARE_SIZE, row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
-# تابع برای نمایش حرکات مجاز
-def highlight_legal_moves(screen, selected_square):
-    legal_moves = list(board.legal_moves)
-    for move in legal_moves:
-        if move.from_square == selected_square:
-            target_col = chess.square_file(move.to_square)
-            target_row = 7 - chess.square_rank(move.to_square)
-            pygame.draw.circle(
-                screen,
-                HIGHLIGHT_COLOR,
-                (target_col * SQUARE_SIZE + SQUARE_SIZE // 2, target_row * SQUARE_SIZE + SQUARE_SIZE // 2),
-                SQUARE_SIZE // 4
-            )
+        # Draw pieces
+        for square in chess.SQUARES:
+            piece = self.board.piece_at(square)
+            if piece:
+                piece_image = PIECES[piece.symbol()]
+                screen.blit(piece_image, (chess.square_file(square) * SQUARE_SIZE, (7 - chess.square_rank(square)) * SQUARE_SIZE))
 
-# تابع اصلی
-def main():
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("شطرنج")
+    def highlight_legal_moves(self, screen, selected_square):
+        """Highlight legal moves for the selected piece."""
+        if selected_square is not None:
+            legal_moves = list(self.board.legal_moves)
+            for move in legal_moves:
+                if move.from_square == selected_square:
+                    target_col = chess.square_file(move.to_square)
+                    target_row = 7 - chess.square_rank(move.to_square)
+                    pygame.draw.circle(
+                        screen,
+                        HIGHLIGHT_COLOR,
+                        (target_col * SQUARE_SIZE + SQUARE_SIZE // 2, target_row * SQUARE_SIZE + SQUARE_SIZE // 2),
+                        SQUARE_SIZE // 4
+                    )
 
-    selected_square = None  # خانه انتخاب‌شده
+    def make_move(self, move):
+        """Make a move on the board if it's legal."""
+        if move in self.board.legal_moves:
+            self.board.push(move)
 
-    while True:
+
+class ChessGame:
+    def __init__(self):
+        self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
+        pygame.display.set_caption("شطرنج")
+        self.board = Board()
+        self.selected_square = None
+
+    def handle_events(self):
+        """Handle user input (mouse clicks)."""
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
-            if event.type == pygame.MOUSEBUTTONDOWN:  # کلیک ماوس
+            if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_x, mouse_y = event.pos
                 col = mouse_x // SQUARE_SIZE
                 row = mouse_y // SQUARE_SIZE
-                square = chess.square(col, 7 - row)  # تبدیل ردیف و ستون به شماره خانه
+                square = chess.square(col, 7 - row)
 
-                if selected_square is None:  # اگر هیچ خانه‌ای انتخاب نشده باشد
-                    if board.piece_at(square):  # اگر خانه حاوی مهره باشد
-                        selected_square = square
-                else:  # اگر خانه‌ای انتخاب شده باشد
-                    move = chess.Move(selected_square, square)
-                    if move in board.legal_moves:  # اگر حرکت مجاز باشد
-                        board.push(move)  # اعمال حرکت
-                    selected_square = None  # خانه انتخاب‌شده را پاک کن
+                if self.selected_square is None:
+                    if self.board.board.piece_at(square):
+                        self.selected_square = square
+                else:
+                    move = chess.Move(self.selected_square, square)
+                    self.board.make_move(move)
+                    self.selected_square = None
 
-        # رسم صفحه
-        draw_board(screen)
+    def run(self):
+        """Main game loop."""
+        while True:
+            self.handle_events()
 
-        # نمایش حرکات مجاز
-        if selected_square is not None:
-            highlight_legal_moves(screen, selected_square)
+            # Clear the screen
+            self.screen.fill((0, 0, 0))
 
-        pygame.display.flip()
+            # Draw the board and pieces
+            self.board.draw(self.screen)
 
-# اجرای برنامه
+            # Highlight legal moves
+            self.board.highlight_legal_moves(self.screen, self.selected_square)
+
+            # Update the display
+            pygame.display.flip()
+
+
 if __name__ == "__main__":
-    main()
+    game = ChessGame()
+    game.run()
