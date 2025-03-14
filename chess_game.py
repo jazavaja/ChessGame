@@ -1,8 +1,7 @@
-import sys
-import time
-
-import chess
 import pygame
+import sys
+import chess
+import time
 
 # Initialize Pygame
 pygame.init()
@@ -48,22 +47,21 @@ class Board:
         self.white_time = 600  # 10 minutes for white
         self.black_time = 600  # 10 minutes for black
         self.last_move_time = self.start_time
+        self.game_over = False  # Flag to indicate if the game is over
 
     def draw(self, screen):
         """Draw the chessboard and pieces."""
         for row in range(8):
             for col in range(8):
                 color = LIGHT_BROWN if (row + col) % 2 == 0 else DARK_BROWN
-                pygame.draw.rect(screen, color,
-                                 (col * SQUARE_SIZE, INFO_HEIGHT + row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+                pygame.draw.rect(screen, color, (col * SQUARE_SIZE, INFO_HEIGHT + row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
         # Draw pieces
         for square in chess.SQUARES:
             piece = self.board.piece_at(square)
             if piece:
                 piece_image = PIECES[piece.symbol()]
-                screen.blit(piece_image, (
-                chess.square_file(square) * SQUARE_SIZE, INFO_HEIGHT + (7 - chess.square_rank(square)) * SQUARE_SIZE))
+                screen.blit(piece_image, (chess.square_file(square) * SQUARE_SIZE, INFO_HEIGHT + (7 - chess.square_rank(square)) * SQUARE_SIZE))
 
     def highlight_legal_moves(self, screen, selected_square):
         """Highlight legal moves for the selected piece."""
@@ -76,8 +74,7 @@ class Board:
                     pygame.draw.circle(
                         screen,
                         HIGHLIGHT_COLOR,
-                        (target_col * SQUARE_SIZE + SQUARE_SIZE // 2,
-                         INFO_HEIGHT + target_row * SQUARE_SIZE + SQUARE_SIZE // 2),
+                        (target_col * SQUARE_SIZE + SQUARE_SIZE // 2, INFO_HEIGHT + target_row * SQUARE_SIZE + SQUARE_SIZE // 2),
                         SQUARE_SIZE // 4
                     )
 
@@ -89,6 +86,9 @@ class Board:
 
     def update_timer(self):
         """Update the timer for both players."""
+        if self.game_over:
+            return  # Stop updating the timer if the game is over
+
         current_time = time.time()
         elapsed_time = current_time - self.last_move_time
         if self.board.turn:  # White's turn
@@ -96,6 +96,14 @@ class Board:
         else:  # Black's turn
             self.black_time -= elapsed_time
         self.last_move_time = current_time
+
+        # Check if time has run out for either player
+        if self.white_time <= 0:
+            self.game_over = True
+            print("White's time is up! Black wins!")
+        elif self.black_time <= 0:
+            self.game_over = True
+            print("Black's time is up! White wins!")
 
     def get_time_remaining(self):
         """Return the remaining time for both players."""
@@ -120,7 +128,9 @@ class ChessGame:
         self.screen.blit(turn_text, (10, 10))
 
         # Display game status
-        if self.board.board.is_checkmate():
+        if self.board.game_over:
+            status_text = self.font.render("Game Over!", True, RED)
+        elif self.board.board.is_checkmate():
             status_text = self.font.render("Checkmate!", True, RED)
         elif self.board.board.is_check():
             status_text = self.font.render("Check!", True, RED)
@@ -144,7 +154,7 @@ class ChessGame:
                 pygame.quit()
                 sys.exit()
 
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            if not self.board.game_over and event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_x, mouse_y = event.pos
                 col = mouse_x // SQUARE_SIZE
                 row = (mouse_y - INFO_HEIGHT) // SQUARE_SIZE
